@@ -1,0 +1,86 @@
+/* Estilo compartido del sistema (assets/estilo.css). Se carga DESPUÉS del CSS propio de cada página.
+   Los colores de la página se mantienen como siempre; solo los botones del menú tienen un color por sección. */
+
+/* ---- Botones del menú: un color por apartado (cambia el valor de --c para ajustarlo) ---- */
+nav{gap:6px}
+nav a{background:var(--c,#ffffff22);color:#fff;border:2px solid rgba(255,255,255,.38);border-radius:99px;padding:7px 14px;transition:filter .15s}
+nav a:hover{filter:brightness(1.14)}
+nav a[href^="index.php"]{--c:#00458e}
+nav a[href^="documentos.php"]{--c:#00458e}
+nav a[href^="bitacora.php"]{--c:#00458e}
+nav a[href^="recordatorios.php"]{--c:#00458e}
+nav a[href^="qr.php"]{--c:#00458e}
+nav a[href^="clave.php"]{--c:#00458e}
+nav a[href^="historial.php"]{--c:#00458e}
+nav a[href^="administradores.php"]{--c:#00458e}
+nav a[href^="respaldo.php"]{--c:#00458e}
+nav a[href^="manual.php"]{--c:#00458e}
+nav a[href^="login.php"]{--c:#00458e}
+nav a.activo{background:#fff;color:var(--c,#142b4a);border-color:#fff;font-weight:700;box-shadow:0 3px 10px rgba(0,0,0,.22);filter:none}
+@media(max-width:760px){nav{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}nav a{white-space:nowrap}}
+
+header .brand p:first-of-type{color:#fff;font-weight:700;font-size:1.05rem}
+body.pg-manual header .brand p:first-of-type{color:#dbeafe;font-weight:400;font-size:1rem}
+
+/* ---- Tarjetas y títulos de sección (con el azul de siempre) ---- */
+main{padding-top:28px}
+.card{border-top:4px solid var(--blue);border-radius:16px;box-shadow:0 10px 30px rgba(20,43,74,.08);margin-bottom:26px}
+.card-head{border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:18px}
+.card h2::before{content:"";display:inline-block;width:6px;height:1.15em;border-radius:4px;background:var(--blue);margin-right:10px;vertical-align:-3px}
+.hint{line-height:1.5}
+
+/* ---- Tablas ---- */
+.table-wrap{border-radius:12px;box-shadow:0 1px 3px rgba(20,43,74,.06)}
+tbody tr:nth-child(even){background:#fafbfd}
+tbody tr:hover{background:#f1f6ff}
+.empty{padding:38px 20px;font-size:.95rem}
+
+/* ---- Botones y avisos ---- */
+.btn{border-radius:10px;box-shadow:0 1px 2px rgba(20,43,74,.14);transition:filter .15s,transform .05s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.flash{border-left:5px solid;border-radius:10px;font-weight:600}
+.flash.success{border-left-color:#16a34a}
+.flash.error{border-left-color:#dc2626}
+.aviso-periodo{background:#eaf1fc;border-left:5px solid var(--blue);border-radius:10px;padding:12px 14px;margin:0 0 14px;font-weight:600;color:var(--navy)}
+
+/* ================= Encabezado compacto y menú agrupado (config/encabezado.php) ================= */
+header.topbar{padding:10px 20px;border-bottom:0;box-shadow:0 4px 16px rgba(20,43,74,.22)}
+@media(min-width:500px){header.topbar{position:sticky;top:0;z-index:100}}
+.topbar-inner{max-width:12000px;margin:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.topbar-marca{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;min-width:0}
+.topbar .marca-logo{height: 60px}
+.topbar-titulo{display:flex;flex-direction:column;line-height:1.25}
+.topbar-titulo small{font-size:.74rem;color:#dbeafe}
+.topbar-titulo strong{font-size:1.15rem;color:#fff}
+nav.menu{margin:0 0 0 auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.menu .menu-salir{margin-left:8px}
+.menu-grupo{position:relative}
+.menu-grupo summary{list-style:none;cursor:pointer;background:#ffffff22;color:#fff;border:2px solid rgba(255,255,255,.38);border-radius:99px;padding:7px 14px;font-weight:600;font-size:.88rem;transition:filter .15s}
+.menu-grupo summary::-webkit-details-marker{display:none}
+.menu-grupo summary::after{content:"";display:inline-block;margin-left:8px;border:5px solid transparent;border-top-color:currentColor;vertical-align:-2px}
+.menu-grupo summary:hover{filter:brightness(1.14)}
+.menu-grupo.activo summary{background:#fff;color:#142b4a;border-color:#fff;font-weight:700}
+.menu-panel{position:absolute;right:0;top:calc(100% + 8px);min-width:220px;background:#fff;border-radius:12px;box-shadow:0 14px 34px rgba(20,43,74,.3);padding:8px;display:flex;flex-direction:column;gap:4px;z-index:200}
+.menu .menu-panel a{background:#fff;color:#243247;border:0;border-radius:8px;padding:9px 12px;box-shadow:inset 4px 0 0 var(--c,#94a3b8);font-weight:600;filter:none}
+.menu .menu-panel a:hover{background:#f1f6ff}
+.menu .menu-panel a.activo{background:#eaf1fc;color:#142b4a;box-shadow:inset 4px 0 0 var(--c,#94a3b8)}
+@media(max-width:860px){
+  nav.menu{margin-left:0;overflow:visible;flex-wrap:wrap}
+  .menu .menu-salir{margin-left:0}
+  .menu-panel{position:static;margin-top:6px;box-shadow:none;border:1px solid #dbe3ee}
+}
+
+/* ================= Lista de estudiantes: formulario plegable y datos al abrir ================= */
+.nuevo-panel{margin-bottom:20px}
+.nuevo-panel>summary{list-style:none;cursor:pointer;display:inline-block;background:var(--blue);color:#fff;border-radius:10px;padding:11px 18px;font-weight:700;font-size:.92rem;box-shadow:0 1px 2px rgba(20,43,74,.14)}
+.nuevo-panel>summary::-webkit-details-marker{display:none}
+.nuevo-panel[open]>summary{margin-bottom:14px;background:#edf2f8;color:#334155}
+.ver-mas{margin-top:6px;font-size:.84rem}
+.ver-mas>summary{cursor:pointer;color:var(--blue);font-weight:650;list-style:none}
+.ver-mas>summary::-webkit-details-marker{display:none}
+.ver-mas>summary::before{content:"Ver ";}
+.ver-mas[open]>summary::before{content:"Ocultar "}
+.ver-mas dl{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;background:#f8fafd;border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.ver-mas dt{color:var(--muted);font-weight:650}
+.ver-mas dd{margin:0}
