@@ -58,7 +58,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare('UPDATE recuperacion_password SET usado = 1 WHERE admin_id = ? AND usado = 0')->execute([(int)$adm['id']]);
                 $pdo->prepare('INSERT INTO recuperacion_password (admin_id, token_hash, expira, usado, creado_en) VALUES (?, ?, ?, 0, ?)')
                     ->execute([(int)$adm['id'], hash('sha256', $clave), $ahora->modify('+30 minutes')->format('Y-m-d H:i:s'), $ahora->format('Y-m-d H:i:s')]);
-                $base = QR_BASE_URL !== '' ? rtrim(QR_BASE_URL, '/') : 'http://localhost' . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+                $envUrl = $_ENV['APP_URL'] ?? getenv('APP_URL');
+if (is_string($envUrl) && $envUrl !== '') {
+    $base = rtrim($envUrl, '/');
+} elseif (!empty($_SERVER['HTTP_HOST'])) {
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+             || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $base = ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+} elseif ($railway = getenv('RAILWAY_PUBLIC_DOMAIN')) {
+    $base = 'https://' . (string)$railway;
+} else {
+    $base = 'http://localhost';
+}
                 $enviado = enviar_correo((string)$adm['correo'], 'Recuperación de contraseña',
                     "Hola " . $adm['usuario'] . ",\r\n\r\nRecibimos una solicitud para restablecer tu contraseña del sistema de Prácticas Profesionales.\r\n"
                     . "Abre este enlace (vale 30 minutos):\r\n" . $base . '/restablecer.php?t=' . $clave . "\r\n\r\n"
