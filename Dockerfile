@@ -1,31 +1,24 @@
-FROM php:8.2-apache
+FROM php:8.2-cli-alpine
 
-# Extensiones de PHP
-RUN docker-php-ext-install pdo pdo_mysql fileinfo
+# Instalar extensiones necesarias de MySQL y dependencias
+RUN apk add --no-cache tzdata \
+    && docker-php-ext-install pdo pdo_mysql fileinfo
 
-# Mod rewrite
-RUN a2enmod rewrite
+# Zona horaria y límites
+ENV TZ="America/Mexico_City"
+RUN echo "date.timezone = America/Mexico_City" > /usr/local/etc/php/conf.d/timezone.ini \
+    && echo "upload_max_filesize = 12M\npost_max_size = 12M" > /usr/local/etc/php/conf.d/custom.ini
 
-# Ajustar Apache para que escuche en el puerto dinámico de Railway (o 80 por defecto)
-RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
-RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g' /etc/apache2/sites-available/000-default.conf
-RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/sites-available/000-default.conf
+# Copiar archivos al directorio de trabajo
+WORKDIR /app
+COPY . /app
 
-# Zona horaria
-RUN echo "date.timezone = America/Mexico_City" > /usr/local/etc/php/conf.d/timezone.ini
-RUN echo "upload_max_filesize = 12M\npost_max_size = 12M" > /usr/local/etc/php/conf.d/custom.ini
+# Crear carpetas de uploads
+RUN mkdir -p /app/uploads/documentos /app/uploads/archivo
 
-# Copiar archivos
-COPY . /var/www/html/
-
-# Permisos de carpetas
-RUN mkdir -p /var/www/html/uploads/documentos /var/www/html/uploads/archivo \
-    && chown -R www-data:www-data /var/www/html/uploads
-
-# Puerto por defecto si no lo pasa Railway
+# Puerto por defecto
 ENV PORT=80
-
 EXPOSE 80
 
-# Arranque oficial
-CMD ["apache2-foreground"]
+# Iniciar servidor PHP directo (sin Apache, 0 errores de MPM)
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT} -t /app"]
