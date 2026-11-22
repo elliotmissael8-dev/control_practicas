@@ -7,7 +7,7 @@ function correo_config(): array {
         'host' => 'smtp.gmail.com',
         'puerto' => 465, 
         'usuario' => 'recuperacioncontrasena902@gmail.com',
-        'clave' => (string)($_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: ''),
+               'clave' => 'njfzunsvuofhrdrh',
         'remitente' => 'recuperacioncontrasena902@gmail.com',
     ];
 }
