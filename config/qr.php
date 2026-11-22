@@ -1,14 +1,16 @@
 <?php
 declare(strict_types=1);
 
-
+// Intervalo en segundos que dura el QR antes de cambiar
 const QR_INTERVALO = 30;
 
+// Ventanas anteriores aceptadas como válidas (tolerancia por retrasos de red)
 const QR_TOLERANCIA = 1;
 
+// Tiempo que el alumno puede navegar tras escanear el QR (5 minutos)
 const QR_SESION_SEGUNDOS = 5 * 60;
 
-const QR_BASE_URL = 'https://10.13.24.0/control_practicas_sql';
+// IPs autorizadas para proyectar el QR (vacío = cualquier IP autorizada con login)
 const QR_IPS_ADMIN = [];
 
 function qr_clave(): string {
@@ -41,12 +43,20 @@ function qr_validar_token(string $token): bool {
 }
 
 function qr_url_alumno(): string {
-    if (QR_BASE_URL !== '') {
-        $base = rtrim(QR_BASE_URL, '/');
+    // Si Railway o el servidor tiene definida APP_URL o RAILWAY_PUBLIC_DOMAIN, úsala:
+    $envUrl = $_ENV['APP_URL'] ?? getenv('APP_URL') ?? '';
+    if ($envUrl !== '') {
+        $base = rtrim($envUrl, '/');
+    } elseif (!empty($_SERVER['HTTP_HOST'])) {
+        // Detección automática en base a la URL con la que accedes en el navegador
+        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                 || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+        $base = ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+    } elseif (!empty(getenv('RAILWAY_PUBLIC_DOMAIN'))) {
+        $base = 'https://' . getenv('RAILWAY_PUBLIC_DOMAIN');
     } else {
-        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-        $dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
-        $base = ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $dir;
+        $base = 'http://localhost';
     }
+
     return $base . '/alumno.php?t=' . qr_token_actual();
 }
