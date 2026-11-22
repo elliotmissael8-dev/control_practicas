@@ -33,15 +33,15 @@ function qr_validar_token(string $token): bool {
 }
 
 function qr_url_alumno(): string {
-    $envUrl = $_ENV['APP_URL'] ?? getenv('APP_URL') ?? '';
-    if ($envUrl !== '') {
+    $envUrl = $_ENV['APP_URL'] ?? getenv('APP_URL');
+    if (is_string($envUrl) && $envUrl !== '') {
         $base = rtrim($envUrl, '/');
     } elseif (!empty($_SERVER['HTTP_HOST'])) {
         $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
                  || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
         $base = ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
-    } elseif (!empty(getenv('RAILWAY_PUBLIC_DOMAIN'))) {
-        $base = 'https://' . getenv('RAILWAY_PUBLIC_DOMAIN');
+    } elseif ($railway = getenv('RAILWAY_PUBLIC_DOMAIN')) {
+        $base = 'https://' . (string)$railway;
     } else {
         $base = 'http://localhost';
     }
