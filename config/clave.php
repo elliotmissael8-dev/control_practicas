@@ -4,7 +4,7 @@ declare(strict_types=1);
 const CLAVE_INTERVALO = 60;
 const CLAVE_SESION_SEGUNDOS = 300;
 const CLAVE_DIGITOS = 6;
-const CLAVE_IPS_ADMIN = ['10.13.24.0','10.13.24.45', '127.0.0.1', '::1'];
+const CLAVE_IPS_ADMIN = [];
 const CLAVE_SECRETO = 'c893f62db66befa096fb1e72d31e3e4bc235ddfc0d8eb0ab01adaf07dbe11014';
 
 function clave_en(int $momento): string {
