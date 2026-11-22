@@ -52,11 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $hayAdmin !== null) {
     }
     $accion = (string)($_POST['accion'] ?? '');
 
-    // Primera vez: crear al administrador (solo desde la computadora del servidor).
+    // Primera vez: crear al administrador.
     if ($accion === 'crear' && !$hayAdmin) {
-        if (!$esLocal) {
-            redirectLogin('El administrador solo puede crearse desde la computadora del servidor.');
-        }
         $usuario = trim((string)($_POST['usuario'] ?? ''));
         $pass = (string)($_POST['password'] ?? '');
         $pass2 = (string)($_POST['password2'] ?? '');
@@ -138,10 +135,10 @@ footer{text-align:center;color:var(--muted);padding:0 20px 25px;font-size:.82rem
 <?php if (isset($_GET['cerrada']) && !$flash): ?><div class="flash success">Sesión cerrada.</div><?php endif; ?>
 <?php if ($errorTabla): ?><div class="flash error"><?= h($errorTabla) ?></div><?php endif; ?>
 
-<?php if ($hayAdmin === false && $esLocal): ?>
+<?php if ($hayAdmin === false): ?>
 <section class="card">
 <h2>Crear administrador</h2>
-<p class="hint">Es la primera vez que se usa el sistema. Crea el usuario y la contraseña del coordinador.</p>
+<p class="hint">Es la primera vez que se usa el sistema. Crea el usuario y la contraseña del administrador.</p>
 <form method="post" autocomplete="off">
 <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
 <input type="hidden" name="accion" value="crear">
@@ -153,12 +150,6 @@ footer{text-align:center;color:var(--muted);padding:0 20px 25px;font-size:.82rem
 <input id="password2" type="password" name="password2" required minlength="8" autocomplete="new-password">
 <button class="btn" type="submit">Crear administrador</button>
 </form>
-</section>
-
-<?php elseif ($hayAdmin === false): ?>
-<section class="card">
-<h2>Sistema sin configurar</h2>
-<p class="hint">Todavía no hay un administrador. Debe crearse desde la computadora donde está instalado el servidor.</p>
 </section>
 
 <?php elseif ($hayAdmin === true): ?>
