@@ -5,7 +5,7 @@ if (!defined('CORREO_SMTP_HOST')) {
     define('CORREO_SMTP_HOST', 'smtp.gmail.com');
     define('CORREO_SMTP_PUERTO', 587);
     define('CORREO_SMTP_USUARIO', 'recuperacioncontrasena902@gmail.com');
-    define('CORREO_SMTP_CLAVE', $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+  define('CORREO_SMTP_CLAVE', 'njfzunsvuofhrdrh');
     define('CORREO_REMITENTE', 'recuperacioncontrasena902@gmail.com');
     define('CORREO_VERIFICAR_CERTIFICADO', true);
 }
