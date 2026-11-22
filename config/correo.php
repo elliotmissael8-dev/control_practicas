@@ -1,18 +1,13 @@
 <?php
 declare(strict_types=1);
 
-// Envío de correos (lo usa la recuperación de contraseña).
-// Con CORREO_SMTP_CLAVE vacía se usa mail() de PHP (necesita sendmail configurado en XAMPP).
-// Con la clave puesta, el sistema se conecta directo al servidor SMTP (recomendado, no depende de sendmail).
-// IMPORTANTE: este archivo contiene una contraseña; no lo compartas ni lo subas a ningún repositorio.
-const CORREO_SMTP_HOST = 'smtp.gmail.com';
-const CORREO_SMTP_PUERTO = 587;
-const CORREO_SMTP_USUARIO = 'recuperacioncontrasena902@gmail.com';
-const CORREO_SMTP_CLAVE = ''; // pega aquí la contraseña de aplicación de Google (16 letras, sin espacios)
-const CORREO_REMITENTE = 'recuperacioncontrasena902@gmail.com'; // con Gmail debe ser la misma cuenta del usuario
-// Solo para pruebas: si falla con "certificate verify failed", cámbialo a false temporalmente.
+// Configuración SMTP (soporta variables de entorno o valores directos)
+define('CORREO_SMTP_HOST', $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: 'smtp.gmail.com');
+define('CORREO_SMTP_PUERTO', (int)($_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: 587));
+define('CORREO_SMTP_USUARIO', $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?: 'recuperacioncontrasena902@gmail.com');
+define('CORREO_SMTP_CLAVE', $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: ''); 
+define('CORREO_REMITENTE', $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: 'recuperacioncontrasena902@gmail.com');
 const CORREO_VERIFICAR_CERTIFICADO = true;
-
 $GLOBALS['correo_ultimo_error'] = '';
 
 function correo_ultimo_error(): string {
