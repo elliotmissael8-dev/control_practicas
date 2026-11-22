@@ -6,7 +6,7 @@ declare(strict_types=1);
 const CORREO_SMTP_HOST = 'smtp-relay.brevo.com'; // O smtp.gmail.com si usas puerto 2525
 const CORREO_SMTP_PUERTO = 587;
 const CORREO_SMTP_USUARIO = 'recuperacioncontrasena902@gmail.com';
-const CORREO_SMTP_CLAVE = 'AQUI_TU_CLAVE'; // Tu clave SMTP o contraseña de aplicación
+const CORREO_SMTP_CLAVE = 'eqvarfyakttwhgsc'; // Tu clave SMTP o contraseña de aplicación
 const CORREO_REMITENTE = 'recuperacioncontrasena902@gmail.com';
 const CORREO_VERIFICAR_CERTIFICADO = false;
 
