@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 if (!defined('CORREO_SMTP_HOST')) {
     define('CORREO_SMTP_HOST', 'smtp.gmail.com');
-    define('CORREO_SMTP_PUERTO', 587);
-    define('CORREO_SMTP_USUARIO', 'recuperacioncontrasena902@gmail.com');
-  define('CORREO_SMTP_CLAVE', 'njfzunsvuofhrdrh');
+
+    define('CORREO_SMTP_PUERTO', 465);
+    define('CORREO_SMTP_CLAVE', 'njfzunsvuofhrdrh');
+    define('CORREO_SMTP_CLAVE', $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
     define('CORREO_REMITENTE', 'recuperacioncontrasena902@gmail.com');
     define('CORREO_VERIFICAR_CERTIFICADO', true);
 }
@@ -23,13 +24,8 @@ function enviar_correo(string $para, string $asunto, string $texto): bool {
         return false;
     }
     if (CORREO_SMTP_CLAVE === '') {
-        $cabeceras = 'From: Control de Practicas <' . CORREO_REMITENTE . ">\r\n"
-            . "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n";
-        $ok = @mail($para, '=?UTF-8?B?' . base64_encode($asunto) . '?=', $texto, $cabeceras);
-        if (!$ok) {
-            $GLOBALS['correo_ultimo_error'] = 'mail() falló. Pon la contraseña de aplicación en CORREO_SMTP_CLAVE o en la variable SMTP_PASS.';
-        }
-        return $ok;
+        $GLOBALS['correo_ultimo_error'] = 'Falta la contraseña de aplicación en CORREO_SMTP_CLAVE o variable SMTP_PASS.';
+        return false;
     }
     try {
         correo_smtp($para, $asunto, $texto);
@@ -49,7 +45,7 @@ function correo_smtp_leer($fp): array {
         }
     }
     if ($texto === '') {
-        throw new RuntimeException('El servidor de correo no respondió (tiempo agotado).');
+        throw new RuntimeException('El servidor de correo no respondió a tiempo.');
     }
     return [(int)substr($texto, 0, 3), trim($texto)];
 }
@@ -65,35 +61,42 @@ function correo_smtp_cmd($fp, string $comando, array $esperados): void {
 }
 
 function correo_smtp(string $para, string $asunto, string $texto): void {
-    if (!extension_loaded('openssl')) {
-        throw new RuntimeException('Falta la extensión openssl de PHP.');
-    }
     $ssl = [
-        'verify_peer' => CORREO_VERIFICAR_CERTIFICADO,
-        'verify_peer_name' => CORREO_VERIFICAR_CERTIFICADO,
-        'allow_self_signed' => !CORREO_VERIFICAR_CERTIFICADO,
+        'verify_peer' => false,
+        'verify_peer_name' => false,
+        'allow_self_signed' => true,
         'peer_name' => CORREO_SMTP_HOST,
     ];
 
-    $fp = @stream_socket_client('tcp://' . CORREO_SMTP_HOST . ':' . CORREO_SMTP_PUERTO, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, stream_context_create(['ssl' => $ssl]));
+    // Conexión directa por SSL (puerto 465)
+    $protocolo = (CORREO_SMTP_PUERTO === 465) ? 'ssl://' : 'tcp://';
+    $fp = @stream_socket_client($protocolo . CORREO_SMTP_HOST . ':' . CORREO_SMTP_PUERTO, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, stream_context_create(['ssl' => $ssl]));
+    
     if (!$fp) {
         throw new RuntimeException('No se pudo conectar a ' . CORREO_SMTP_HOST . ':' . CORREO_SMTP_PUERTO . ' (' . $errstr . ').');
     }
+    
     stream_set_timeout($fp, 20);
     try {
         correo_smtp_cmd($fp, '', [220]);
         correo_smtp_cmd($fp, 'EHLO localhost', [250]);
-        correo_smtp_cmd($fp, 'STARTTLS', [220]);
-        if (!@stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-            throw new RuntimeException('No se pudo iniciar la conexión segura TLS.');
+        
+   
+        if (CORREO_SMTP_PUERTO === 587) {
+            correo_smtp_cmd($fp, 'STARTTLS', [220]);
+            if (!@stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+                throw new RuntimeException('No se pudo iniciar TLS.');
+            }
+            correo_smtp_cmd($fp, 'EHLO localhost', [250]);
         }
-        correo_smtp_cmd($fp, 'EHLO localhost', [250]);
+
         correo_smtp_cmd($fp, 'AUTH LOGIN', [334]);
         correo_smtp_cmd($fp, base64_encode(CORREO_SMTP_USUARIO), [334]);
         correo_smtp_cmd($fp, base64_encode(CORREO_SMTP_CLAVE), [235]);
         correo_smtp_cmd($fp, 'MAIL FROM:<' . CORREO_REMITENTE . '>', [250]);
         correo_smtp_cmd($fp, 'RCPT TO:<' . $para . '>', [250, 251]);
         correo_smtp_cmd($fp, 'DATA', [354]);
+        
         $cabeceras = [
             'Date: ' . date('r'),
             'From: Control de Practicas <' . CORREO_REMITENTE . '>',
