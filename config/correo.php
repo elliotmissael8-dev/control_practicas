@@ -1,17 +1,13 @@
 <?php
 declare(strict_types=1);
 
-// Configuración SMTP (soporta variables de entorno o valores directos)
-define('CORREO_SMTP_HOST', $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: 'smtp.gmail.com');
-define('CORREO_SMTP_PUERTO', (int)($_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: 587));
-define('CORREO_SMTP_USUARIO', $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?: 'recuperacioncontrasena902@gmail.com');
-const CORREO_SMTP_HOST = 'smtp.gmail.com';
-const CORREO_SMTP_PUERTO = 587;
-const CORREO_SMTP_USUARIO = 'recuperacioncontrasena902@gmail.com';
-define('CORREO_SMTP_CLAVE', $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
-const CORREO_REMITENTE = 'recuperacioncontrasena902@gmail.com';
-function correo_ultimo_error(): string {
-    return (string)($GLOBALS['correo_ultimo_error'] ?? '');
+if (!defined('CORREO_SMTP_HOST')) {
+    define('CORREO_SMTP_HOST', 'smtp.gmail.com');
+    define('CORREO_SMTP_PUERTO', 587);
+    define('CORREO_SMTP_USUARIO', 'recuperacioncontrasena902@gmail.com');
+    define('CORREO_SMTP_CLAVE', $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+    define('CORREO_REMITENTE', 'recuperacioncontrasena902@gmail.com');
+    define('CORREO_VERIFICAR_CERTIFICADO', true);
 }
 
 function enviar_correo(string $para, string $asunto, string $texto): bool {
