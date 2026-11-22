@@ -10,6 +10,12 @@ if (!defined('CORREO_SMTP_HOST')) {
     define('CORREO_VERIFICAR_CERTIFICADO', true);
 }
 
+$GLOBALS['correo_ultimo_error'] = '';
+
+function correo_ultimo_error(): string {
+    return (string)($GLOBALS['correo_ultimo_error'] ?? '');
+}
+
 function enviar_correo(string $para, string $asunto, string $texto): bool {
     $GLOBALS['correo_ultimo_error'] = '';
     if (!filter_var($para, FILTER_VALIDATE_EMAIL)) {
@@ -21,7 +27,7 @@ function enviar_correo(string $para, string $asunto, string $texto): bool {
             . "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n";
         $ok = @mail($para, '=?UTF-8?B?' . base64_encode($asunto) . '?=', $texto, $cabeceras);
         if (!$ok) {
-            $GLOBALS['correo_ultimo_error'] = 'mail() falló. Pon la contraseña de aplicación en CORREO_SMTP_CLAVE (config/correo.php) para enviar directo.';
+            $GLOBALS['correo_ultimo_error'] = 'mail() falló. Pon la contraseña de aplicación en CORREO_SMTP_CLAVE o en la variable SMTP_PASS.';
         }
         return $ok;
     }
@@ -34,7 +40,6 @@ function enviar_correo(string $para, string $asunto, string $texto): bool {
     }
 }
 
-// Lee una respuesta SMTP (puede ser de varias líneas). Devuelve [código, texto].
 function correo_smtp_leer($fp): array {
     $texto = '';
     while (($linea = fgets($fp, 1024)) !== false) {
@@ -61,7 +66,7 @@ function correo_smtp_cmd($fp, string $comando, array $esperados): void {
 
 function correo_smtp(string $para, string $asunto, string $texto): void {
     if (!extension_loaded('openssl')) {
-        throw new RuntimeException('Falta la extensión openssl de PHP. En php.ini activa extension=openssl y reinicia Apache.');
+        throw new RuntimeException('Falta la extensión openssl de PHP.');
     }
     $ssl = [
         'verify_peer' => CORREO_VERIFICAR_CERTIFICADO,
@@ -69,22 +74,10 @@ function correo_smtp(string $para, string $asunto, string $texto): void {
         'allow_self_signed' => !CORREO_VERIFICAR_CERTIFICADO,
         'peer_name' => CORREO_SMTP_HOST,
     ];
-    $ca = (string)ini_get('openssl.cafile');
-    if ($ca === '' || !is_file($ca)) {
-        foreach (['C:/xampp/apache/bin/curl-ca-bundle.crt', 'C:/xampp/php/extras/ssl/cacert.pem'] as $candidato) {
-            if (is_file($candidato)) {
-                $ca = $candidato;
-                break;
-            }
-        }
-    }
-    if ($ca !== '' && is_file($ca)) {
-        $ssl['cafile'] = $ca;
-    }
 
     $fp = @stream_socket_client('tcp://' . CORREO_SMTP_HOST . ':' . CORREO_SMTP_PUERTO, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, stream_context_create(['ssl' => $ssl]));
     if (!$fp) {
-        throw new RuntimeException('No se pudo conectar a ' . CORREO_SMTP_HOST . ':' . CORREO_SMTP_PUERTO . ' (' . $errstr . '). Revisa internet, el firewall o el antivirus.');
+        throw new RuntimeException('No se pudo conectar a ' . CORREO_SMTP_HOST . ':' . CORREO_SMTP_PUERTO . ' (' . $errstr . ').');
     }
     stream_set_timeout($fp, 20);
     try {
@@ -92,7 +85,7 @@ function correo_smtp(string $para, string $asunto, string $texto): void {
         correo_smtp_cmd($fp, 'EHLO localhost', [250]);
         correo_smtp_cmd($fp, 'STARTTLS', [220]);
         if (!@stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-            throw new RuntimeException('No se pudo iniciar la conexión segura (TLS). Si el error menciona el certificado, prueba CORREO_VERIFICAR_CERTIFICADO = false solo para probar.');
+            throw new RuntimeException('No se pudo iniciar la conexión segura TLS.');
         }
         correo_smtp_cmd($fp, 'EHLO localhost', [250]);
         correo_smtp_cmd($fp, 'AUTH LOGIN', [334]);
