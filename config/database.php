@@ -1,22 +1,35 @@
 <?php
 declare(strict_types=1);
 
-// Railway inyecta MYSQL_URL con todo: mysql://user:pass@host:port/db
+// Railway inyecta MYSQL_URL o variables individuales (MYSQLHOST, MYSQL_HOST, etc.)
 // En local (XAMPP) se usan los valores por defecto.
-if (!empty($_ENV['MYSQL_URL']) || !empty(getenv('MYSQL_URL'))) {
-    $url = $_ENV['MYSQL_URL'] ?? getenv('MYSQL_URL');
-    $p = parse_url($url);
-    $host    = $p['host'] ?? 'localhost';
-    $port    = $p['port'] ?? 3306;
-    $db      = ltrim($p['path'] ?? '/control_practicas', '/');
-    $user    = $p['user'] ?? 'root';
-    $pass    = $p['pass'] ?? '';
+
+// Función para buscar una variable de entorno con varios nombres posibles
+function env(string ...$nombres): string {
+    foreach ($nombres as $n) {
+        $v = $_ENV[$n] ?? getenv($n);
+        if ($v !== false && $v !== '' && $v !== null) return (string)$v;
+    }
+    return '';
+}
+
+$mysql_url = env('MYSQL_URL', 'DATABASE_URL', 'MYSQL_PUBLIC_URL');
+
+if ($mysql_url !== '') {
+    // Railway da la URL completa: mysql://user:pass@host:port/db
+    $p = parse_url($mysql_url);
+    $host = $p['host'] ?? 'localhost';
+    $port = $p['port'] ?? 3306;
+    $db   = ltrim($p['path'] ?? '/railway', '/');
+    $user = $p['user'] ?? 'root';
+    $pass = $p['pass'] ?? 'hflRAyRIybReWxxVZFbafWnxcQBsTQHW';
 } else {
-    $host = $_ENV['DB_HOST'] ?? 'localhost';
-    $port = (int)($_ENV['DB_PORT'] ?? 3306);
-    $db   = $_ENV['DB_NAME'] ?? 'control_practicas';
-    $user = $_ENV['DB_USER'] ?? 'root';
-    $pass = $_ENV['DB_PASS'] ?? '';
+    // Variables individuales (Railway usa MYSQLHOST o MYSQL_HOST)
+    $host = env('MYSQLHOST', 'MYSQL_HOST', 'DB_HOST') ?: 'localhost';
+    $port = (int)(env('MYSQLPORT', 'MYSQL_PORT', 'DB_PORT') ?: 3306);
+    $db   = env('MYSQLDATABASE', 'MYSQL_DATABASE', 'DB_NAME') ?: 'control_practicas';
+    $user = env('MYSQLUSER', 'MYSQL_USER', 'DB_USER') ?: 'root';
+    $pass = env('MYSQLPASSWORD', 'MYSQL_PASSWORD', 'DB_PASS') ?: '';
 }
 $charset = 'utf8mb4';
 
@@ -31,5 +44,5 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
     http_response_code(500);
-    exit('No se pudo conectar con la base de datos. Verifica config/database.php e importa database.sql en phpMyAdmin.');
+    exit('No se pudo conectar con la base de datos. Host=' . $host . ' Port=' . $port . ' DB=' . $db . ' User=' . $user);
 }
