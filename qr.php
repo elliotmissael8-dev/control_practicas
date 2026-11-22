@@ -1,26 +1,27 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/config/auth.php';
+require __DIR__ . '/config/database.php';
 require __DIR__ . '/config/qr.php';
 require __DIR__ . '/config/clave.php';
 
-if (QR_IPS_ADMIN && !in_array($_SERVER['REMOTE_ADDR'] ?? '', QR_IPS_ADMIN, true)) {
-    http_response_code(403);
-    exit('Acceso no permitido.');
-}
-
-// Endpoint JSON: el navegador lo consulta para refrescar el QR y la clave sin recargar la página.
+// Endpoint JSON para refrescar el QR y la clave
 if (isset($_GET['api'])) {
     header('Content-Type: application/json; charset=UTF-8');
     header('Cache-Control: no-store');
-    echo json_encode([
-        'url' => qr_url_alumno(),
-        'restante' => QR_INTERVALO - (time() % QR_INTERVALO),
-        'intervalo' => QR_INTERVALO,
-        'clave' => clave_actual(),
-        'clave_restante' => clave_restante(),
-        'clave_intervalo' => CLAVE_INTERVALO,
-    ]);
+    try {
+        echo json_encode([
+            'url' => qr_url_alumno(),
+            'restante' => QR_INTERVALO - (time() % QR_INTERVALO),
+            'intervalo' => QR_INTERVALO,
+            'clave' => clave_actual(),
+            'clave_restante' => clave_restante(),
+            'clave_intervalo' => CLAVE_INTERVALO,
+        ], JSON_THROW_ON_ERROR);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
     exit;
 }
 ?>
@@ -46,7 +47,7 @@ h2{font-size:1.25rem;color:var(--navy);margin:0 0 6px}.hint{color:var(--muted);f
 .codigo{font-family:Consolas,"Courier New",monospace;font-weight:700;color:var(--navy);font-size:clamp(2.6rem,8vw,4.5rem);letter-spacing:.1em;line-height:1.1;padding:18px 10px;background:#f8fbff;border:1px solid var(--border);border-radius:12px}
 .barra{height:8px;background:#e8edf4;border-radius:99px;overflow:hidden;margin:20px auto 8px;max-width:280px}
 .barra div{height:100%;width:100%;background:var(--blue);transition:width 1s linear}
-.tiempo{color:var(--muted);font-size:.88rem}.error{color:#991b1b;font-weight:600;margin:0 auto 14px;text-align:center}
+.tiempo{color:var(--muted);font-size:.88rem}.error{color:#991b1b;background:#fee2e2;padding:10px;border-radius:8px;font-weight:600;margin:0 auto 14px;max-width:600px;text-align:center}
 footer{text-align:center;color:var(--muted);padding:0 20px 25px;font-size:.82rem}
 </style>
 <link rel="stylesheet" href="assets/estilo.css?v=1">
@@ -105,18 +106,25 @@ footer{text-align:center;color:var(--muted);padding:0 20px 25px;font-size:.82rem
     if (cargando) return;
     cargando = true;
     fetch('qr.php?api=1', {cache:'no-store'})
-      .then(function(r){ if (r.status === 401) { location.href = 'login.php'; throw new Error('sesion'); } if(!r.ok) throw new Error(); return r.json(); })
+      .then(function(r){ 
+        if (r.status === 401) { location.href = 'login.php'; throw new Error('Sesión expirada'); } 
+        return r.text().then(function(texto){
+            try { return JSON.parse(texto); }
+            catch(e) { throw new Error('Respuesta no válida del servidor: ' + texto.substring(0, 100)); }
+        });
+      })
       .then(function(d){
+        if (d.error) throw new Error(d.error);
         dibujar(d.url);
         claveBox.textContent = formatear(d.clave);
         restanteQr = d.restante; intervaloQr = d.intervalo;
         restanteClave = d.clave_restante; intervaloClave = d.clave_intervalo;
         errorBox.hidden = true;
       })
-      .catch(function(){
-        errorBox.textContent = 'No se pudo actualizar. Reintentando…';
+      .catch(function(err){
+        errorBox.textContent = err.message || 'Error al conectar';
         errorBox.hidden = false;
-        restanteQr = 3; restanteClave = 3;
+        restanteQr = 5; restanteClave = 5;
       })
       .finally(function(){ cargando = false; pintar(); });
   }
