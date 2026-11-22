@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 define('ADMIN_PAGINA_LOGIN', true);
-require __DIR__ . '/config/database.php';
-require __DIR__ . '/config/auth.php';
-require __DIR__ . '/config/historial.php';
-require __DIR__ . '/config/migraciones.php';
-require __DIR__ . '/config/correo.php';
-require __DIR__ . '/config/qr.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/auth.php';
+require_once __DIR__ . '/config/historial.php';
+require_once __DIR__ . '/config/migraciones.php';
+require_once __DIR__ . '/config/correo.php';
+require_once __DIR__ . '/config/qr.php';
 migrar($pdo);
 
 if (admin_activo()) {
@@ -58,18 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->prepare('UPDATE recuperacion_password SET usado = 1 WHERE admin_id = ? AND usado = 0')->execute([(int)$adm['id']]);
                 $pdo->prepare('INSERT INTO recuperacion_password (admin_id, token_hash, expira, usado, creado_en) VALUES (?, ?, ?, 0, ?)')
                     ->execute([(int)$adm['id'], hash('sha256', $clave), $ahora->modify('+30 minutes')->format('Y-m-d H:i:s'), $ahora->format('Y-m-d H:i:s')]);
+                
                 $envUrl = $_ENV['APP_URL'] ?? getenv('APP_URL');
-if (is_string($envUrl) && $envUrl !== '') {
-    $base = rtrim($envUrl, '/');
-} elseif (!empty($_SERVER['HTTP_HOST'])) {
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-             || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
-    $base = ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
-} elseif ($railway = getenv('RAILWAY_PUBLIC_DOMAIN')) {
-    $base = 'https://' . (string)$railway;
-} else {
-    $base = 'http://localhost';
-}
+                if (is_string($envUrl) && $envUrl !== '') {
+                    $base = rtrim($envUrl, '/');
+                } elseif (!empty($_SERVER['HTTP_HOST'])) {
+                    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                             || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+                    $base = ($https ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+                } elseif ($railway = getenv('RAILWAY_PUBLIC_DOMAIN')) {
+                    $base = 'https://' . (string)$railway;
+                } else {
+                    $base = 'http://localhost';
+                }
+
                 $enviado = enviar_correo((string)$adm['correo'], 'Recuperación de contraseña',
                     "Hola " . $adm['usuario'] . ",\r\n\r\nRecibimos una solicitud para restablecer tu contraseña del sistema de Prácticas Profesionales.\r\n"
                     . "Abre este enlace (vale 30 minutos):\r\n" . $base . '/restablecer.php?t=' . $clave . "\r\n\r\n"
@@ -127,6 +129,6 @@ input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;backgro
 <p class="enlaces"><a href="login.php">Volver a iniciar sesión</a></p>
 </section>
 </main>
-<?php require __DIR__ . '/config/footer.php'; ?>
+<?php require_once __DIR__ . '/config/footer.php'; ?>
 </body>
 </html>
