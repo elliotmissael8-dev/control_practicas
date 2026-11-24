@@ -9,6 +9,21 @@ function migrar(PDO $pdo): void {
         return;
     }
     try {
+        // database.sql no siempre incluye esta tabla; créala antes de intentar agregarle las columnas nuevas.
+        $pdo->exec('CREATE TABLE IF NOT EXISTS documentos_entregados (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            estudiante_id INT UNSIGNED NOT NULL,
+            tipo_documento VARCHAR(120) NOT NULL,
+            fecha_entrega DATE NOT NULL,
+            observaciones TEXT NULL,
+            creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            archivo_nombre VARCHAR(255) NULL,
+            archivo_ruta VARCHAR(255) NULL,
+            INDEX idx_documentos_estudiante (estudiante_id),
+            CONSTRAINT fk_documentos_estudiante FOREIGN KEY (estudiante_id)
+                REFERENCES estudiantes_practicas (id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+
         $agregar = static function (string $tabla, string $columna, string $definicion) use ($pdo): void {
             $st = $pdo->prepare('SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?');
             $st->execute([$tabla, $columna]);
@@ -42,6 +57,7 @@ function migrar(PDO $pdo): void {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
         $_SESSION['migraciones_v2'] = 1;
     } catch (Throwable $e) {
-        // Sin permisos: las funciones nuevas fallarán hasta ejecutar el SQL manualmente.
+        error_log('Error al ejecutar migraciones de la aplicación: ' . $e->getMessage());
+        // Sin permisos o con un esquema incompatible, las funciones afectadas no estarán disponibles.
     }
 }
