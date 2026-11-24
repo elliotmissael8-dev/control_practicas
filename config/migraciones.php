@@ -5,7 +5,8 @@ declare(strict_types=1);
 // de contraseña). Se aplican solos, una vez, solo si faltan. Si el usuario de MySQL no tiene permiso ALTER/CREATE,
 // ejecuta a mano el SQL que viene en las instrucciones de instalación.
 function migrar(PDO $pdo): void {
-    if (!empty($_SESSION['migraciones_v2'])) {
+    // Incrementar esta versión obliga a sesiones existentes a ejecutar las migraciones nuevas tras un despliegue.
+    if (!empty($_SESSION['migraciones_v3'])) {
         return;
     }
     try {
@@ -55,7 +56,7 @@ function migrar(PDO $pdo): void {
             enviado_en DATETIME NOT NULL,
             UNIQUE KEY uq_recordatorio (estudiante_id, periodo)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
-        $_SESSION['migraciones_v2'] = 1;
+        $_SESSION['migraciones_v3'] = 1;
     } catch (Throwable $e) {
         error_log('Error al ejecutar migraciones de la aplicación: ' . $e->getMessage());
         // Sin permisos o con un esquema incompatible, las funciones afectadas no estarán disponibles.
