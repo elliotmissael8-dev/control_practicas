@@ -31,7 +31,7 @@ function redirectTo(string $message, string $type = 'success'): never {
 function siguienteIdEstudiante(PDO $pdo): int {
     $st = $pdo->prepare('SELECT (SELECT COUNT(*) FROM estudiantes_practicas WHERE id = ?) + (SELECT COUNT(*) FROM bitacora_horas WHERE estudiante_id = ?)');
     for ($i = 0; $i < 50; $i++) {
-        $id = random_int(100000, 999999999);
+        $id = random_int(10000, 999999);
         $st->execute([$id, $id]);
         if ((int)$st->fetchColumn() === 0 && docs_id_libre($id)) {
             return $id;
