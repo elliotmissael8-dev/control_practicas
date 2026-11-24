@@ -26,8 +26,7 @@ function redirectTo(string $message, string $type = 'success'): never {
     exit;
 }
 
-// ID aleatorio y único (de 6 a 9 dígitos). Nunca se reutiliza un ID: se descartan los que tengan alumno, jornadas,
-// carpeta de documentos o carpeta en el archivo, para que no se mezclen datos de dos personas.
+
 function siguienteIdEstudiante(PDO $pdo): int {
     $st = $pdo->prepare('SELECT (SELECT COUNT(*) FROM estudiantes_practicas WHERE id = ?) + (SELECT COUNT(*) FROM bitacora_horas WHERE estudiante_id = ?)');
     for ($i = 0; $i < 50; $i++) {
@@ -40,7 +39,7 @@ function siguienteIdEstudiante(PDO $pdo): int {
     throw new RuntimeException('No se pudo asignar un ID único. Intenta de nuevo.');
 }
 
-// Texto con todos los datos del alumno (ficha, documentos y jornadas) que se guarda junto a sus archivos al eliminarlo.
+
 function fichaAlumno(PDO $pdo, int $id): string {
     $nl = "\r\n";
     $st = $pdo->prepare('SELECT * FROM estudiantes_practicas WHERE id = ?');
