@@ -1,0 +1,8 @@
+# Apache / XAMPP: ocultar configuración, claves, esquemas y documentos subidos.
+Options -Indexes
+
+RedirectMatch 404 (?i)/(config|uploads|docs|mnt)(/|$)
+
+<FilesMatch "(?i)(\.(sql|key|lock|md|ya?ml|log)|^\.env.*|^Dockerfile|^router\.php)$">
+    Require all denied
+</FilesMatch>

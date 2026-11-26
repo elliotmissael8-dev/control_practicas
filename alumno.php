@@ -3,7 +3,7 @@ declare(strict_types=1);
 date_default_timezone_set('America/Mexico_City');
 session_start();
 require __DIR__ . '/config/database.php';
-require __DIR__ . '/config/qr.php';
+require_once __DIR__ . '/config/qr.php';
 require __DIR__ . '/config/clave.php';
 require __DIR__ . '/config/reporte.php';
 require __DIR__ . '/config/historial.php';

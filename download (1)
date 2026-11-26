@@ -1,0 +1,28 @@
+# Docker
+.env
+.env.*
+!.env.example
+
+# Runtime data
+/uploads/
+/uploads/**
+*.log
+
+# Private configuration and keys
+config/*.key
+config/*.pem
+config/*.p12
+config/*.lock
+
+# PHP
+/vendor/
+.phpunit.result.cache
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local data
+mnt/

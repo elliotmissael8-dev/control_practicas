@@ -281,7 +281,7 @@ nav{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}nav a{color:#fff;text-de
 <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
 <input type="hidden" name="accion" value="guardar">
 <input type="hidden" name="id" value="<?= h((string)($editar['id'] ?? '0')) ?>">
-<div class="field"><label for="matricula">Matrícula *</label><input id="matricula" name="matricula"  minlength="14" maxlength="14" required   oninput="this.value = this.value.replace(/[^0-9]/g,'')" value="<?= h($editar['matricula'] ?? '') ?>" placeholder="14 digitos"2></div>
+<div class="field"><label for="matricula">Matrícula *</label><input id="matricula" name="matricula"  minlength="14" maxlength="14" required   oninput="this.value = this.value.replace(/[^0-9]/g,'')" value="<?= h($editar['matricula'] ?? '') ?>" placeholder="14 dígitos"></div>
 <div class="field"><label for="apellidos">Apellidos *</label><input id="apellidos" name="apellidos" required maxlength="100" value="<?= h($editar['apellidos'] ?? '') ?>" placeholder="Apellidos del estudiante"></div>
 <div class="field"><label for="nombre">Nombre(s) *</label><input id="nombre" name="nombre" required maxlength="100" value="<?= h($editar['nombre'] ?? '') ?>" placeholder="Nombre del estudiante"></div>
 <div class="field"><label for="carrera">Carrera *</label><input id="carrera" name="carrera" required maxlength="120" value="<?= h($editar['carrera'] ?? '') ?>" placeholder="Programa académico"></div>

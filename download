@@ -1,0 +1,23 @@
+# Archivos locales y datos generados
+.git/
+.env
+.env.*
+!.env.example
+/vendor/
+/uploads/
+mnt/
+*.log
+
+# Dependencias y cachés
+node_modules/
+phpunit.cache/
+
+# Editor y sistema
+.vscode/
+.idea/
+.DS_Store
+
+# Claves privadas locales
+config/*.key
+config/*.lock
+*.zip

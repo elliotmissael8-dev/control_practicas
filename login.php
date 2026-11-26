@@ -41,7 +41,19 @@ $errorTabla = null;
 try {
     $hayAdmin = (int)$pdo->query('SELECT COUNT(*) FROM administradores')->fetchColumn() > 0;
 } catch (PDOException $e) {
-    $errorTabla = 'Falta crear la tabla administradores en la base de datos.';
+    try {
+        $pdo->exec('CREATE TABLE IF NOT EXISTS administradores (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            usuario VARCHAR(50) NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            correo VARCHAR(120) NULL,
+            creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_administradores_usuario (usuario)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+        $hayAdmin = false;
+    } catch (PDOException $e2) {
+        $errorTabla = 'Falta crear la tabla administradores en la base de datos.';
+    }
 }
 $esLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 

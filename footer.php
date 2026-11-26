@@ -1,27 +1,34 @@
 <?php
 declare(strict_types=1);
+// Footer común de todas las páginas, con la estructura del sitio oficial de la UAA (uaa.mx).
+// Para cambiar enlaces o textos, edita solo este archivo. El horario se cambia en config/horario.php.
+require_once __DIR__ . '/horario.php';
 $uaaPortal = 'https://www.uaa.mx/portal/';
 $uaaRedes = 'https://www.uaa.mx/portal/social-media/';
+// Cada enlace es 'Texto' => 'dirección'. Los marcados "CONFIRMAR" o "PENDIENTE" hay que revisarlos en uaa.mx:
+// abre el footer del sitio oficial, clic derecho sobre el enlace > "Copiar dirección del enlace" y pégala aquí.
 $transparencia = [
-    'Plataforma Nacional de Transparencia' ,
-    'Obligaciones de Transparencia',
-    'Centro Occidente - Consejo Regional',
-    'SEP',
-    'Adquisiciones y Obra Pública',
-    'Transparencia y acceso a la información',
-    'Unidad Garante',
-    'Contraloría Social',
-    'Defensoría de los Derechos Universitarios',
-    'Consorcio de Universidades Mexicanas',
-    'Avisos de Privacidad',
+    'Plataforma Nacional de Transparencia' => 'https://www.plataformadetransparencia.org.mx/',
+    'Obligaciones de Transparencia' => 'https://www.uaa.mx/informacionpublica/', // CONFIRMAR
+    'Centro Occidente - Consejo Regional' => $uaaPortal, // PENDIENTE
+    'SEP' => 'https://www.gob.mx/sep',
+    'Adquisiciones y Obra Pública' => $uaaPortal, // PENDIENTE
+    'Transparencia y acceso a la información' => 'https://www.uaa.mx/informacionpublica/', // CONFIRMAR
+    'Unidad Garante' => $uaaPortal, // PENDIENTE
+    'Contraloría Social' => 'https://www.uaa.mx/csocial/', // CONFIRMAR
+    'Defensoría de los Derechos Universitarios' => $uaaPortal, // PENDIENTE
+    'Consorcio de Universidades Mexicanas' => 'https://www.cumex.org.mx/',
+    'Avisos de Privacidad' => $uaaPortal, // PENDIENTE
 ];
 $redes = [
     'Facebook' => 'https://www.facebook.com/uaa.mx/',
     'Twitter / X' => 'https://x.com/uaa_mx',
     'Instagram' => 'https://www.instagram.com/uaa_mx/',
-    'YouTube' => 'https://www.youtube.com/@UAAmx1',
-    'Google Maps' => 'https://www.google.com.mx/maps/place/Universidad+Aut%C3%B3noma+de+Aguascalientes/@21.9100469,-102.3179845,16z/data=!4m14!1m7!3m6!1s0x8429ef1da1ab338d:0x89a0246637c42ddb!2sUniversidad+Aut%C3%B3noma+de+Aguascalientes!8m2!3d21.9100469!4d-102.3154096!16s%2Fm%2F04m_qxm!3m5!1s0x8429ef1da1ab338d:0x89a0246637c42ddb!8m2!3d21.9100469!4d-102.3154096!16s%2Fm%2F04m_qxm?entry=ttu&g_ep=EgoyMDI2MTAyMC4wIKXMDSoASAFQAw%3D%3D',
-   
+    'YouTube' => 'https://www.youtube.com/user/UAAmx',
+    'LinkedIn' => 'https://www.linkedin.com/school/universidad-aut-noma-de-aguascalientes/',
+    'Google Maps' => 'https://g.page/r/CdstxDdmJKCJEAE',
+    'TikTok' => $uaaRedes, // PENDIENTE
+    'Threads' => $uaaRedes, // PENDIENTE
 ];
 ?>
 <style>
@@ -44,23 +51,8 @@ $redes = [
     <p class="uaa-lema">Se Lumen Proferre</p>
     <p>Av. Universidad #940, Ciudad Universitaria,<br>C.P. 20100, Aguascalientes, Ags. México.</p>
     <p>Tel. conmutador: <a href="tel:+524499107400">449 910 74 00</a></p>
+    <p><strong>Horario de uso:</strong><br><?= htmlspecialchars(horario_texto(), ENT_QUOTES, 'UTF-8') ?></p>
   </div>
-  <div>
-    <h3>Enlaces de transparencia</h3>
-    <ul class="uaa-trans">
-<?php foreach ($transparencia as $texto): ?>
-      <li><a href="<?= htmlspecialchars($uaaPortal, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener"><?= htmlspecialchars($texto, ENT_QUOTES, 'UTF-8') ?></a></li>
-<?php endforeach; ?>
-    </ul>
-  </div>
-  <div>
-    <h3>Redes sociales</h3>
-    <ul>
-<?php foreach ($redes as $texto => $url): ?>
-      <li><a href="<?= htmlspecialchars($url, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener"><?= htmlspecialchars($texto, ENT_QUOTES, 'UTF-8') ?></a></li>
-<?php endforeach; ?>
-    </ul>
-  </div>
-</div>
+
 <div class="uaa-footer-bottom">© 2026 · Control de Prácticas Profesionales y Servicio Social del edificio 55 · Departamento de Sistemas de Información</div>
 </footer>
